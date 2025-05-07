@@ -8,7 +8,7 @@ exports.createMessage = async (req, res) => {
 
     let media = "";
     if (req.file && req.file.path) {
-      profile = req.file.path;
+      media = req.file.path;
     }
 
     const newMessage = new Message({

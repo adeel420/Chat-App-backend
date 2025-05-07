@@ -1,22 +1,37 @@
 const express = require("express");
-const {
-  createMessage,
-  getMessageByLoginId,
-} = require("../controllers/messageController");
 const router = express.Router();
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
-// router.use(express.static("public"));
 
+const {
+  createMessage,
+  getMessageByLoginId,
+} = require("../controllers/messageController");
+
+// Setup Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "chat-app-images", // e.g., 'chat-app-images'
-    allowed_formats: ["jpg", "jpeg", "png"],
+  params: async (req, file) => {
+    return {
+      folder: "chat-app-files", // You can change this to "chat-app-images" if only images
+      allowed_formats: [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "mp4",
+        "mov",
+        "avi",
+        "webm",
+      ],
+      resource_type: file.mimetype.startsWith("video/") ? "video" : "image",
+      public_id: `${Date.now()}-${file.originalname.split(".")[0]}`, // optional: unique name
+    };
   },
 });
 
+// Filter allowed file types
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|avi|webm/;
   const isValid = allowedTypes.test(file.mimetype);
@@ -27,7 +42,8 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-router.post("/:sender/:receiver", upload.single("image"), createMessage);
+// Routes
+router.post("/:sender/:receiver", upload.single("file"), createMessage);
 router.get("/:loginId", getMessageByLoginId);
 
 module.exports = router;
