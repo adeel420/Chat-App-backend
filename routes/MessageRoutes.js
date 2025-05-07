@@ -43,7 +43,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter });
 
 // Routes
-router.post("/:sender/:receiver", upload.single("file"), createMessage);
+router.post("/:sender/:receiver", upload.single("image"), createMessage);
 router.get("/:loginId", getMessageByLoginId);
 
 module.exports = router;
